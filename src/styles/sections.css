@@ -1,0 +1,513 @@
+/* 01 — Bio: dense editorial column on deep blue */
+.bio {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 6vw;
+  align-items: center;
+  padding: 22vh var(--gutter) 18vh 18vw;
+  background: var(--blue-deep);
+  overflow: hidden;
+}
+.bio__index {
+  position: absolute;
+  top: 12vh;
+  left: 18vw;
+  color: rgba(255, 255, 255, 0.6);
+}
+.bio__head {
+  font-weight: 800;
+  font-size: clamp(40px, 5.6vw, 92px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+.bio__text {
+  max-width: 46ch;
+  font-size: clamp(16px, 1.15vw, 19px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+.bio__text + .bio__text {
+  margin-top: 18px;
+}
+.bio__photo {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+}
+.bio__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bio__photo figcaption {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 4px 8px;
+  background: var(--lime);
+  color: var(--ink);
+}
+
+/* 02 — Sound: WORD —— WORD, with photos landing on the line */
+.sound {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--blue);
+}
+.sound__index {
+  position: absolute;
+  top: 12vh;
+  left: 18vw;
+  color: rgba(255, 255, 255, 0.7);
+}
+.sound__row {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 0 var(--gutter);
+}
+.sound__row + .sound__row {
+  visibility: hidden;
+}
+.sound__line {
+  display: flex;
+  align-items: center;
+  gap: 2.4vw;
+  width: calc(100vw - var(--gutter) * 2);
+}
+.sound__word {
+  font-weight: 900;
+  font-size: var(--size, 10vw);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+.sound__rule {
+  flex: 1;
+  min-width: 12vw;
+  height: clamp(4px, 0.5vw, 8px);
+  background: var(--lime);
+  transform-origin: left;
+}
+.sound__cards {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -108%;
+  display: flex;
+}
+.sound__card {
+  width: clamp(110px, 13vw, 220px);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border: 5px solid var(--white);
+  box-shadow: 0 30px 50px -20px rgba(3, 12, 60, 0.6);
+}
+.sound__card + .sound__card {
+  margin-left: -3vw;
+}
+.sound__note {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  translate: -50% 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--white);
+}
+
+/* 03 — Walk-out: a portrait frame on navy, the words either side */
+.walk {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--navy);
+  display: grid;
+  place-items: center;
+}
+.walk__index {
+  position: absolute;
+  top: 12vh;
+  left: 18vw;
+  color: rgba(255, 255, 255, 0.6);
+  z-index: 3;
+}
+.walk__word {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  font-weight: 900;
+  font-size: 19vw;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.4);
+}
+.walk__word--a {
+  left: 2vw;
+}
+.walk__word--b {
+  right: 2vw;
+}
+.walk__frame {
+  position: relative;
+  z-index: 2;
+  height: 84svh;
+  aspect-ratio: 1204 / 2400;
+  overflow: hidden;
+  box-shadow: 0 60px 100px -30px rgba(0, 0, 0, 0.7);
+}
+.walk__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.walk__frame figcaption {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.walk__beats {
+  position: absolute;
+  right: 6vw;
+  bottom: 12vh;
+  z-index: 3;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  font-size: clamp(18px, 1.6vw, 26px);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+/* 04 — Discography: the white wall */
+.disco {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 18vh var(--gutter) 12vh;
+}
+.disco__head {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 7vh;
+  padding-left: 16vw;
+}
+.disco__title {
+  font-weight: 900;
+  font-size: clamp(56px, 11vw, 200px);
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.disco__covers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.4vw;
+  margin-bottom: 4vh;
+}
+.disco__cover {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.4s;
+  opacity: 0.55;
+}
+.disco__cover img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  box-shadow: 0 24px 40px -24px rgba(0, 0, 0, 0.5);
+}
+.disco__cover.is-active {
+  opacity: 1;
+  transform: translateY(-12px);
+}
+.disco__panel {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 5vw;
+  padding: 6vh 4vw;
+  background: var(--era-bg);
+  color: var(--era-fg);
+  transition:
+    background 0.6s,
+    color 0.6s;
+  animation: panelIn 0.8s var(--ease);
+}
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+.disco__name {
+  margin: 10px 0 18px;
+  font-weight: 900;
+  font-size: clamp(34px, 4.6vw, 76px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+.disco__name--serif {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.disco__note {
+  max-width: 38ch;
+  font-size: 17px;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+.disco__listen {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 10px 16px;
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+.disco__listen:hover {
+  background: var(--era-fg);
+  color: var(--era-bg);
+}
+.disco__tracks {
+  list-style: none;
+  columns: 2;
+  column-gap: 3vw;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 2;
+}
+.disco__tracks li {
+  break-inside: avoid;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+.disco__tracks .label {
+  opacity: 0.5;
+  margin-right: 10px;
+}
+.disco__tracks--empty {
+  columns: 1;
+  align-self: center;
+}
+
+/* 05 — Live */
+.live {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 5vw;
+  align-items: center;
+  padding: 18vh var(--gutter) 18vh 16vw;
+  background: var(--ink);
+  overflow: hidden;
+}
+.live__title {
+  font-family: var(--serif);
+  font-size: clamp(64px, 10vw, 180px);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  margin-top: 16px;
+}
+.live__sub {
+  font-weight: 800;
+  font-size: clamp(22px, 2.4vw, 38px);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--lime);
+}
+.live__text {
+  max-width: 36ch;
+  margin-top: 28px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+}
+.live__frame {
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.live__frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.live__side {
+  position: absolute;
+  left: 4vw;
+  bottom: 8vh;
+  width: 9vw;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border: 4px solid var(--white);
+  rotate: -5deg;
+}
+
+/* 06 — Signature */
+.sign {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 5vw;
+  align-items: center;
+  padding: 18vh var(--gutter) 16vh 16vw;
+  background: var(--blue);
+  overflow: hidden;
+}
+.sign__head {
+  font-weight: 800;
+  font-size: clamp(40px, 5.4vw, 90px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+.sign__head em {
+  font-style: normal;
+  color: var(--lime);
+}
+.sign__name {
+  margin-top: 2vh;
+  font-family: var(--script);
+  font-size: clamp(90px, 12vw, 220px);
+  line-height: 1;
+  color: var(--white);
+  rotate: -6deg;
+}
+.sign__portrait {
+  overflow: hidden;
+  aspect-ratio: 1;
+  box-shadow: 0 50px 90px -30px rgba(3, 12, 60, 0.7);
+}
+.sign__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Footer */
+.foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100svh;
+  background: #000;
+}
+.foot__img {
+  width: 100%;
+  height: 100%;
+  max-height: 100svh;
+  object-fit: cover;
+  object-position: 50% 0%;
+}
+.foot__copy {
+  display: grid;
+  align-content: end;
+  gap: 16px;
+  padding: 10vh var(--gutter);
+}
+.foot__word {
+  font-weight: 900;
+  font-size: clamp(80px, 12vw, 220px);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+.foot__credit {
+  max-width: 48ch;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.foot__top {
+  margin-top: 20px;
+  color: var(--lime);
+}
+
+@media (max-width: 900px) {
+  .bio,
+  .live,
+  .sign {
+    grid-template-columns: 1fr;
+    padding: 16vh var(--gutter) 12vh;
+  }
+  .bio__index,
+  .sound__index,
+  .walk__index {
+    left: var(--gutter);
+    top: 90px;
+  }
+  .disco__head {
+    padding-left: 0;
+  }
+  .disco__covers {
+    grid-template-columns: repeat(5, 40vw);
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scroll-snap-type: x mandatory;
+  }
+  .disco__cover {
+    scroll-snap-align: start;
+  }
+  .disco__panel {
+    grid-template-columns: 1fr;
+    padding: 5vh 6vw;
+  }
+  .disco__tracks {
+    columns: 1;
+  }
+  .walk__frame {
+    height: 72svh;
+  }
+  .walk__beats {
+    right: var(--gutter);
+    bottom: 5vh;
+    font-size: 16px;
+  }
+  .live__side {
+    display: none;
+  }
+  .foot {
+    grid-template-columns: 1fr;
+  }
+  .foot__img {
+    max-height: 70svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound {
+    height: auto;
+  }
+  .sound__row {
+    position: relative;
+    padding: 12vh var(--gutter);
+  }
+  .sound__row + .sound__row {
+    visibility: visible;
+  }
+  .sound__cards {
+    position: static;
+    translate: none;
+    margin-top: 24px;
+  }
+  .sound__note {
+    position: static;
+    translate: none;
+    margin-top: 16px;
+  }
+}
