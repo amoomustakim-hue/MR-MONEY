@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
-import { AUTHOR, CREDIT, ERAS, PHOTOS, img, media } from '../config/content'
-import { useReducedMotion } from '../hooks/useMediaQuery'
+import { AUTHOR, CREDIT, ERAS, PHOTOS, img } from '../config/content'
 import { useScrollScene } from '../hooks/useScrollScene'
 import { gsap } from '../utils/gsap'
+import { FlyThrough } from './FlyThrough'
 import { pad } from '../utils/math'
 
 /** Lines that rise out of their own clipped box when scrolled to. */
@@ -113,70 +113,16 @@ export function Sound() {
   )
 }
 
-/** 03 — the walk-out, framed like a portrait on the wall; scroll walks him to the edge of the stage. */
+/** 03 — the walk-out: through the O of WALK OUT and onto the stage, scroll as the playhead. */
 export function WalkOut() {
-  const root = useRef<HTMLElement>(null)
-  const video = useRef<HTMLVideoElement>(null)
-  const reduced = useReducedMotion()
-  const [src] = useState(() => {
-    const v = document.createElement('video')
-    return media(v.canPlayType('video/mp4; codecs="avc1.640028"') ? 'walk.mp4' : 'walk.webm')
-  })
-
-  useScrollScene(root, ({ motion, desktop }) => {
-    const v = video.current
-    if (!motion || !v) return
-    v.muted = true
-    v.play().then(() => v.pause()).catch(() => {})
-    const state = { target: 0, current: 0 }
-    const seek = () => {
-      if (!v.duration) return
-      state.current += (state.target - state.current) * 0.14
-      const t = Math.min(v.duration - 0.05, state.current * v.duration)
-      if (!v.seeking && Math.abs(v.currentTime - t) > 1 / 60) v.currentTime = t
-    }
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: root.current,
-        start: 'top top',
-        end: desktop ? '+=260%' : '+=200%',
-        pin: true,
-        scrub: 0.6,
-        onUpdate: (self) => (state.target = self.progress),
-        onToggle: (self) => (self.isActive ? gsap.ticker.add(seek) : gsap.ticker.remove(seek)),
-      },
-    })
-    tl.fromTo('.walk__frame', { scale: 0.82 }, { scale: 1, duration: 0.3, ease: 'power2.out' }, 0)
-    gsap.utils.toArray<HTMLElement>('.walk__beat').forEach((el, i) => {
-      tl.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.08 }, 0.12 + i * 0.26)
-      tl.to(el, { opacity: 0.18, duration: 0.08 }, 0.34 + i * 0.26)
-    })
-    tl.fromTo('.walk__word--a', { xPercent: -30 }, { xPercent: 0, duration: 1 }, 0)
-    tl.fromTo('.walk__word--b', { xPercent: 30 }, { xPercent: 0, duration: 1 }, 0)
-    tl.set({}, {}, 1)
-    return () => gsap.ticker.remove(seek)
-  })
-
   return (
-    <section className="walk" id="walk" ref={root} aria-label="The walk-out">
-      <p className="label walk__index">(03) — The walk-out</p>
-      <p className="walk__word walk__word--a" aria-hidden="true">
-        Walk
-      </p>
-      <p className="walk__word walk__word--b" aria-hidden="true">
-        Out
-      </p>
-      <figure className="walk__frame">
-        <video ref={video} src={reduced ? undefined : src} poster={media('walk.jpg')} muted playsInline preload="auto" aria-hidden="true" tabIndex={-1} />
-        <figcaption className="label">Live — the walk to the edge</figcaption>
-      </figure>
-      <ol className="walk__beats">
-        <li className="walk__beat">The lights drop.</li>
-        <li className="walk__beat">The phones go up.</li>
-        <li className="walk__beat">He walks to the edge.</li>
+    <FlyThrough id="walk" index="(03) — The walk-out" label="The walk-out" word="WALK OUT" through={4} aim={[0.13, 0.5]} font="sans" clip="walk" mode="scrub" aspect={1204 / 2400} cover="#07144a" scroll={320}>
+      <ol className="fly__beats">
+        <li className="fly__beat">The lights drop.</li>
+        <li className="fly__beat">The phones go up.</li>
+        <li className="fly__beat">He walks to the edge.</li>
       </ol>
-    </section>
+    </FlyThrough>
   )
 }
 
@@ -244,35 +190,15 @@ export function Discography() {
   )
 }
 
-/** 05 — M$NEY live: the promo cut plays in a frame, the name set in carved capitals. */
+/** 05 — M$NEY live: the promo plays inside the carved name, then through the $ and into the show. */
 export function Live() {
-  const root = useRef<HTMLElement>(null)
-  const reduced = useReducedMotion()
-  const [src] = useState(() => {
-    const v = document.createElement('video')
-    return media(v.canPlayType('video/mp4; codecs="avc1.640028"') ? 'live.mp4' : 'live.webm')
-  })
-  useLineReveal(root)
-  useScrollScene(root, ({ motion }) => {
-    if (!motion) return
-    gsap.fromTo('.live__frame', { clipPath: 'inset(12% 12% 12% 12%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 80%', end: 'center center', scrub: true } })
-    gsap.fromTo('.live__side', { yPercent: 30 }, { yPercent: -30, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true } })
-  })
   return (
-    <section className="live" id="live" ref={root} aria-label="M$NEY live in concert">
-      <div className="live__copy">
-        <p className="label">(05) — On stage</p>
-        <Lines lines={['M$NEY']} className="live__title" />
-        <Lines as="p" lines={['Live in concert.']} className="live__sub" />
-        <p className="live__text" data-fade>
-          Flame cannons, a choir in white, the name spelled out in letters taller than the band. The album, played loud.
-        </p>
+    <FlyThrough id="live" index="(05) — On stage" label="M$NEY live in concert" word="M$NEY" through={1} aim={[0.5, 0.5]} font="serif" clip="live" mode="loop" aspect={1} cover="#0b0c10" scroll={260}>
+      <div className="fly__live">
+        <p className="fly__live-title">Live in concert.</p>
+        <p className="fly__beat fly__live-text">Flame cannons, a choir in white, the name spelled out in letters taller than the band.</p>
       </div>
-      <figure className="live__frame">
-        <video src={reduced ? undefined : src} poster={media('live.jpg')} muted playsInline autoPlay loop preload="metadata" aria-hidden="true" tabIndex={-1} />
-      </figure>
-      <img className="live__side" src={PHOTOS.flameUsa} alt="Asake on stage firing a flame cannon" loading="lazy" />
-    </section>
+    </FlyThrough>
   )
 }
 
