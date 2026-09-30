@@ -6,15 +6,19 @@ import { gsap } from '../utils/gsap'
 import { pad } from '../utils/math'
 
 const base = import.meta.env.BASE_URL
-const FRAMES = 140
+/** Cut-out frames of the walk, 20 fps, re-centred so he walks on the spot. */
+const FRAMES = 124
+const FPS = 20
+/** The last frames are cross-faded into the first so the loop has no seam. */
+const XF = 8
+const LOOP = FRAMES - XF
 const frame = (i: number) => `${base}turn/${pad(i + 1, 4)}.webp`
 
 /**
- * The orbit. Asake, cut out of the walk-out footage, turns in the middle of
- * the screen like a figure on a turntable (the source camera arcs around
- * him, so scrubbing the cut-out frames reads as a rotation). The five album
- * covers spiral up around him in 3D — passing behind him and in front — and
- * whichever is closest names its era.
+ * The orbit. Asake, cut out of the stage footage, walks in the middle of the
+ * screen in real time, on a seamless loop, while the five album covers
+ * spiral round him in 3D with the scroll — passing behind him and in front —
+ * and whichever is closest names its era.
  */
 export function Spiral() {
   const root = useRef<HTMLElement>(null)
@@ -22,14 +26,13 @@ export function Spiral() {
   const images = useRef<(HTMLImageElement | null)[]>([])
   const reduced = useReducedMotion()
 
-  // Stream the turntable frames in: every 4th first, then the rest.
+  // Stream the frames in order (the walk plays from the start as they land).
   useEffect(() => {
     let cancelled = false
-    const order = [...Array(FRAMES).keys()].sort((a, b) => (a % 4) - (b % 4) || a - b)
     let next = 0
     const pump = () => {
-      if (cancelled || next >= order.length) return
-      const i = order[next++]
+      if (cancelled || next >= FRAMES) return
+      const i = next++
       const img = new Image()
       img.decoding = 'async'
       img.onload = () => {
@@ -45,27 +48,53 @@ export function Spiral() {
     }
   }, [])
 
-  useScrollScene(root, ({ motion, desktop }) => {
+  // The walk: real time, independent of scroll, only while on screen.
+  useEffect(() => {
     const c = canvas.current
     const ctx = c?.getContext('2d')
     if (!c || !ctx) return
-    const state = { target: 0, current: 0, drawn: -1 }
-    const covers = gsap.utils.toArray<HTMLElement>('.orbit__cover')
-    const names = gsap.utils.toArray<HTMLElement>('.orbit__name')
-
-    const draw = (index: number) => {
-      // Nearest loaded frame, so a gap never blanks him.
+    let raf = 0
+    let visible = false
+    const start = performance.now()
+    const get = (i: number) => {
       for (let d = 0; d < FRAMES; d++) {
-        const img = images.current[index - d] ?? images.current[index + d]
-        if (img) {
-          if (state.drawn === index && d === 0) return
-          ctx.clearRect(0, 0, c.width, c.height)
-          ctx.drawImage(img, 0, 0, c.width, c.height)
-          state.drawn = d === 0 ? index : -1
-          return
+        const img = images.current[i - d]
+        if (img) return img
+      }
+      return null
+    }
+    const draw = () => {
+      raf = requestAnimationFrame(draw)
+      if (!visible) return
+      const f = reduced ? 30 : Math.floor(((performance.now() - start) / 1000) * FPS) % LOOP
+      const img = get(f)
+      if (!img) return
+      ctx.clearRect(0, 0, c.width, c.height)
+      ctx.globalAlpha = 1
+      ctx.drawImage(img, 0, 0, c.width, c.height)
+      // Seam: the tail of the previous pass fades out over the head of this one.
+      if (!reduced && f < XF) {
+        const tail = images.current[f + LOOP]
+        if (tail) {
+          ctx.globalAlpha = 1 - (f + 1) / (XF + 1)
+          ctx.drawImage(tail, 0, 0, c.width, c.height)
+          ctx.globalAlpha = 1
         }
       }
     }
+    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { rootMargin: '20% 0px' })
+    io.observe(c)
+    draw()
+    return () => {
+      cancelAnimationFrame(raf)
+      io.disconnect()
+    }
+  }, [reduced])
+
+  useScrollScene(root, ({ motion, desktop }) => {
+    const covers = gsap.utils.toArray<HTMLElement>('.orbit__cover')
+    const names = gsap.utils.toArray<HTMLElement>('.orbit__name')
+    const state = { target: 0, current: 0 }
 
     const layout = (p: number) => {
       const R = desktop ? Math.min(innerWidth * 0.36, 620) : innerWidth * 0.62
@@ -92,14 +121,11 @@ export function Spiral() {
     }
 
     if (!motion) {
-      draw(Math.round(FRAMES * 0.45))
       layout(0.5)
       return
     }
-
     const tick = () => {
       state.current += (state.target - state.current) * 0.12
-      draw(Math.min(FRAMES - 1, Math.round(state.current * (FRAMES - 1))))
       layout(state.current)
     }
     gsap.timeline({
@@ -114,18 +140,8 @@ export function Spiral() {
       },
     })
     gsap.fromTo('.orbit__title .line > span', { yPercent: 110 }, { yPercent: 0, duration: 1.3, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: root.current, start: 'top 60%' } })
-    // Draw the first frame as soon as it arrives.
-    const first = setInterval(() => {
-      if (images.current[0]) {
-        tick()
-        clearInterval(first)
-      }
-    }, 100)
     layout(0)
-    return () => {
-      gsap.ticker.remove(tick)
-      clearInterval(first)
-    }
+    return () => gsap.ticker.remove(tick)
   })
 
   return (
@@ -145,7 +161,7 @@ export function Spiral() {
       </h2>
 
       <div className="orbit__stage">
-        <canvas ref={canvas} className="orbit__figure" width={560} height={1000} role="img" aria-label="Asake, cut out from the walk-out footage, turning" />
+        <canvas ref={canvas} className="orbit__figure" width={900} height={1200} role="img" aria-label="Asake walking, cut out from stage footage" />
         {ERAS.map((e) => (
           <figure className="orbit__cover" key={e.id}>
             <img src={e.cover} alt={`${e.title} cover`} loading="lazy" />
@@ -163,7 +179,7 @@ export function Spiral() {
           </li>
         ))}
       </ol>
-      <p className="label orbit__hint">Keep scrolling — he turns, the records orbit</p>
+      <p className="label orbit__hint">Keep scrolling — the records orbit him</p>
     </section>
   )
 }

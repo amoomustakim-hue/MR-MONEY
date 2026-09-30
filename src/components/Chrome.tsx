@@ -9,7 +9,6 @@ const LINKS = [
   ['bio', 'The man'],
   ['sound', 'The sound'],
   ['eras', 'The eras'],
-  ['walk', 'The walk-out'],
   ['records', 'The records'],
   ['live', 'On stage'],
   ['signature', 'Signature'],

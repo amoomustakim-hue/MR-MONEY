@@ -10,7 +10,6 @@
  *   face.png          the studio portrait, cropped so its eyes, nose and mouth
  *                     sit exactly on the statue's, AI-upscaled to 2048
  *   photos/*.jpg      live and editorial photos
- *   walk.mp4          the stage walk-out (phone screen recording)
  *   live.mov          the M$NEY Live promo
  *
  * Writes public/media/ and public/img/.
@@ -53,15 +52,6 @@ for (const f of readdirSync(src('photos'))) {
 }
 
 // --- Video. -----------------------------------------------------------------------
-// The walk-out is scrubbed by scroll: keyframe every 12 frames, no B-frames.
-// The screen recording's status bar (top) and black band (bottom) are cropped off.
-const scrub = ['-an', '-r', '24', '-g', '12', '-bf', '0', '-pix_fmt', 'yuv420p', '-movflags', '+faststart']
-const WALK = 'crop=1204:2400:43:176,scale=720:-2:flags=lanczos'
-run(['-i', src('walk.mp4'), '-vf', WALK, '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', ...scrub, `${media}/walk.mp4`])
-run(['-i', src('walk.mp4'), '-vf', WALK, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '36', '-row-mt', '1', '-an', '-r', '24', '-g', '12', `${media}/walk.webm`])
-run(['-ss', '0.2', '-i', src('walk.mp4'), '-frames:v', '1', '-vf', WALK, '-q:v', '4', `${media}/walk.jpg`])
-console.log('→ walk')
-
 // The live promo loops on its own. Its audio is his music, so it ships silent.
 const LIVE = 'scale=960:960:flags=lanczos'
 run(['-i', src('live.mov'), '-vf', LIVE, '-c:v', 'libx264', '-preset', 'slow', '-crf', '24', '-an', '-r', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${media}/live.mp4`])

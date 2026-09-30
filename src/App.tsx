@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Nav, Preloader } from './components/Chrome'
 import { Hero } from './components/Hero'
 import { Spiral } from './components/Spiral'
-import { Bio, Discography, Footer, Live, Signature, Sound, WalkOut } from './components/Sections'
+import { Bio, Discography, Footer, Live, Signature, Sound } from './components/Sections'
 import { useScrollLock } from './hooks/useLenis'
 
 export default function App() {
@@ -22,7 +22,6 @@ export default function App() {
         <Bio />
         <Sound />
         <Spiral />
-        <WalkOut />
         <Discography />
         <Live />
         <Signature />

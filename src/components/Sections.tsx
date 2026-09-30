@@ -113,19 +113,6 @@ export function Sound() {
   )
 }
 
-/** 03 — the walk-out: through the O of WALK OUT and onto the stage, scroll as the playhead. */
-export function WalkOut() {
-  return (
-    <FlyThrough id="walk" index="(04) — The walk-out" label="The walk-out" word="WALK OUT" through={4} aim={[0.13, 0.5]} font="sans" clip="walk" mode="scrub" aspect={1204 / 2400} cover="#07144a" scroll={320}>
-      <ol className="fly__beats">
-        <li className="fly__beat">The lights drop.</li>
-        <li className="fly__beat">The phones go up.</li>
-        <li className="fly__beat">He walks to the edge.</li>
-      </ol>
-    </FlyThrough>
-  )
-}
-
 /** 04 — the records, on a white wall like a sponsor board: pick one and the room takes its colour. */
 export function Discography() {
   const root = useRef<HTMLElement>(null)
@@ -140,7 +127,7 @@ export function Discography() {
   return (
     <section className="disco" id="records" ref={root} aria-label="Discography" style={{ ['--era-bg' as string]: era.bg, ['--era-fg' as string]: era.fg }}>
       <div className="disco__head">
-        <p className="label">(05) — The records</p>
+        <p className="label">(04) — The records</p>
         <Lines lines={['Discography']} className="disco__title" />
       </div>
 
@@ -193,7 +180,7 @@ export function Discography() {
 /** 05 — M$NEY live: the promo plays inside the carved name, then through the $ and into the show. */
 export function Live() {
   return (
-    <FlyThrough id="live" index="(06) — On stage" label="M$NEY live in concert" word="M$NEY" through={1} aim={[0.5, 0.5]} font="serif" clip="live" mode="loop" aspect={1} cover="#0b0c10" scroll={260}>
+    <FlyThrough id="live" index="(05) — On stage" label="M$NEY live in concert" word="M$NEY" through={1} aim={[0.5, 0.5]} font="serif" clip="live" mode="loop" aspect={1} cover="#0b0c10" scroll={260}>
       <div className="fly__live">
         <p className="fly__live-title">Live in concert.</p>
         <p className="fly__beat fly__live-text">Flame cannons, a choir in white, the name spelled out in letters taller than the band.</p>

@@ -20,7 +20,7 @@ npm run build
 | — | The stone | Pinned. A WebGL shader cracks the M$NEY relief into Voronoi shards from the eyes outward; they drop away to reveal the studio portrait. Live photos float around it at their own depths. |
 | 01 | The man | A dense editorial column on deep blue, the white-tee portrait opening like a shutter. |
 | 02 | The sound | FUJI ——— AMAPIANO, then LAGOS ——— WORLDWIDE: the lime line draws itself and photos land on it. |
-| 03 | The walk-out | The stage clip in a portrait frame, scrubbed by scroll, between outlined WALK / OUT. |
+| 03 | The eras | Pinned. Asake, cut out of the stage footage, walks on a seamless real-time loop in the middle of the screen while the five album covers spiral round him in 3D with the scroll — passing behind and in front — and the closest names its era. |
 | 04 | The records | Five covers on a white wall; choosing one turns the panel its colour and shows the tracklist. |
 | 05 | On stage | The M$NEY Live promo, looping silently, with the name in carved capitals. |
 | 06 | Signature | The portrait, a last line, the name signed across it. |
@@ -39,5 +39,12 @@ dust are procedural. Without WebGL 2 the cover shows as a still.
 
 `npm run media` builds `public/` from `media-src/` (not committed): covers and
 the two hero images were AI-upscaled with Real-ESRGAN first; photos become WebP;
-the walk-out is cropped out of its screen recording and encoded for scrubbing
-(12-frame GOP, no B-frames); the live promo ships without its audio.
+the live promo ships without its audio.
+
+The walking cut-out in `public/turn/` (124 WebP frames with alpha, 20 fps) is
+made once, outside `npm run media`: the first ~6 s of the stage clip at full
+resolution, matted with BiRefNet (rembg `birefnet-general-lite`, which leaves
+the stage monitor at his feet out), then composed by `scripts/cutout.py` —
+largest shape only, anchored on his head so he walks on the spot, scaled to a
+steady height. The page cross-fades the last 8 frames into the first so the
+loop has no seam.
