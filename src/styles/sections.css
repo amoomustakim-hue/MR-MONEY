@@ -578,8 +578,8 @@
   position: absolute;
   max-width: none;
   height: var(--fh);
-  width: calc(var(--fh) * 0.56);
-  left: calc(var(--fh) * -0.28);
+  width: calc(var(--fh) * 0.75);
+  left: calc(var(--fh) * -0.375);
   top: calc(var(--fh) * -0.48);
   transform: translateZ(0);
   filter: drop-shadow(0 30px 40px rgba(3, 12, 60, 0.55));
