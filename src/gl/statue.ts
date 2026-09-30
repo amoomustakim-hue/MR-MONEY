@@ -1,9 +1,10 @@
 /**
- * Stone to man: the M$NEY marble relief breaks apart along a cracked cell
- * pattern and falls away, revealing the real portrait underneath — lined up
- * eye for eye. Two real images, one fragment shader, no generated likeness.
+ * Stone to man: the M$NEY marble relief crumbles into pieces that erode to
+ * dust and drift away, revealing the real portrait underneath — lined up eye
+ * for eye. The cursor pushes pieces aside wherever it goes, so you can peek
+ * at the face before you scroll; they settle back when it leaves.
  *
- * `progress` (0 → 1) is driven by scroll. Everything else is procedural.
+ * Two real images, one fragment shader, no generated likeness.
  */
 
 const VERT = `#version 300 es
@@ -20,9 +21,11 @@ in vec2 vUv;
 out vec4 outColor;
 uniform sampler2D uStatue;
 uniform sampler2D uFace;
-uniform float uP;      // break progress 0..1
+uniform float uP;      // crumble progress 0..1 (scroll)
 uniform float uT;      // time
-uniform vec2 uTilt;    // pointer, -0.5..0.5
+uniform vec2 uMouse;   // cursor in uv
+uniform float uHover;  // 0..1 while the cursor is over the stone
+uniform vec2 uTilt;
 
 vec2 hash2(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -30,70 +33,84 @@ vec2 hash2(vec2 p) {
 }
 float hash1(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
-// Voronoi: distance to the nearest edge, and that cell's id + centre.
-vec3 cells(vec2 x, out vec2 id, out vec2 centre) {
+// Voronoi: distance to the nearest edge, the cell id and its centre.
+float cells(vec2 x, out vec2 id, out vec2 centre) {
   vec2 n = floor(x), f = fract(x);
   vec2 mg, mr; float md = 8.0;
   for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
     vec2 g = vec2(float(i), float(j));
-    vec2 o = hash2(n + g);
-    vec2 r = g + o - f;
+    vec2 r = g + hash2(n + g) - f;
     float d = dot(r, r);
     if (d < md) { md = d; mr = r; mg = g; }
   }
   md = 8.0;
   for (int j = -2; j <= 2; j++) for (int i = -2; i <= 2; i++) {
     vec2 g = mg + vec2(float(i), float(j));
-    vec2 o = hash2(n + g);
-    vec2 r = g + o - f;
+    vec2 r = g + hash2(n + g) - f;
     if (dot(mr - r, mr - r) > 0.00001) md = min(md, dot(0.5 * (mr + r), normalize(r - mr)));
   }
   id = n + mg;
-  centre = (n + mg + hash2(n + mg));
-  return vec3(md, mr);
+  centre = n + mg + hash2(n + mg);
+  return md;
+}
+
+// One pass of the stone at a given piece scale; returns colour and coverage.
+vec4 stoneLayer(vec2 uv, float scale, float t, float seed) {
+  vec2 id, centre;
+  // Sample the piece under this pixel *before* it moved: find which piece
+  // would land here by testing the pixel's own cell (pieces are small, so the
+  // error of this approximation reads as the piece tearing at its edge).
+  float edge = cells(uv * scale + seed, id, centre);
+  vec2 cUv = (centre - seed) / scale;
+
+  // When this piece crumbles: from the eyes outward, with some randomness.
+  float order = distance(cUv, vec2(0.5, 0.44)) * 1.2 + hash1(id) * 0.3;
+  float scroll = clamp((t - order) / 0.22, 0.0, 1.0);
+
+  // The cursor pushes pieces out of its way.
+  float d = distance(cUv, uMouse);
+  float hover = uHover * (1.0 - smoothstep(0.03, 0.17, d));
+  float fall = max(scroll, hover * 0.85);
+
+  // Crumbling = eroding from its edges inward while it drifts away.
+  float erode = fall * 0.5;
+  float alive = step(erode, edge) * (1.0 - step(0.999, fall));
+
+  vec2 away = normalize(cUv - vec2(0.5, 0.46) + 0.0001) * 0.05 + vec2(0.0, -0.08);
+  vec2 push = normalize(cUv - uMouse + 0.0001) * 0.035 * hover;
+  vec2 offset = away * scroll * scroll + push;
+  float ang = (hash1(id + 7.0) - 0.5) * 1.6 * fall;
+  vec2 p = uv - cUv;
+  p = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * p;
+  vec2 sUv = cUv + p - offset;
+
+  vec3 c = texture(uStatue, sUv).rgb;
+  // Pieces darken a little as they lift, and cracks open before they go.
+  c *= 1.0 - fall * 0.35;
+  float crack = (1.0 - smoothstep(0.0, 0.012, edge)) * smoothstep(order - 0.4, order, t) * smoothstep(0.0, 0.05, uP);
+  c = mix(c, vec3(0.14, 0.13, 0.12), crack * 0.85);
+
+  // Embers along the eroding edge: marble turning to glowing dust.
+  float rim = (1.0 - smoothstep(erode, erode + 0.03, edge)) * step(0.02, fall) * alive;
+  c += vec3(1.0, 0.72, 0.36) * rim * 0.9;
+
+  return vec4(c, alive);
 }
 
 void main() {
-  vec2 uv = vUv;
-  uv.y = 1.0 - uv.y;
+  vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+  float t = uP * 1.5;
 
-  // Big shards over the face, finer ones towards the edges.
-  const float SCALE = 7.0;
-  vec2 id, centre;
-  vec3 c = cells(uv * SCALE, id, centre);
-  float edge = c.x;
+  vec4 stone = stoneLayer(uv, 11.0, t, 0.0);
 
-  // Each shard has its moment: the break starts at the eyes and runs outward.
-  vec2 cUv = centre / SCALE;
-  float order = distance(cUv, vec2(0.5, 0.44)) * 1.25 + hash1(id) * 0.28;
-  float t = uP * 1.45;
-  float fall = clamp((t - order) / 0.16, 0.0, 1.0);     // 0 = in place, 1 = gone
-  float crackIn = smoothstep(order - 0.42, order - 0.05, t) * smoothstep(0.0, 0.06, uP); // cracks appear first; none before the first scroll
+  // The man underneath; a breath of parallax against the stone.
+  vec3 face = texture(uFace, uv + uTilt * 0.008).rgb;
 
-  // A falling shard drops, tilts and darkens before it disappears.
-  vec2 drop = vec2((hash1(id + 3.1) - 0.5) * 0.05, 0.14) * fall * fall;
-  vec2 sUv = uv - drop;
-  vec4 stone = texture(uStatue, sUv);
-  float shade = 1.0 - fall * 0.45;
-  stone.rgb *= shade;
+  // Dust: fine sparks drifting up where pieces have gone.
+  vec2 g = floor(uv * vec2(260.0, 260.0) + vec2(0.0, uT * 40.0));
+  float spark = step(0.9965, hash1(g)) * (1.0 - stone.a) * (smoothstep(0.02, 0.2, uP) * (1.0 - smoothstep(0.75, 1.0, uP)) + uHover * 0.6);
 
-  // Hairline cracks, dark with a lit lip, as they open.
-  float line = 1.0 - smoothstep(0.0, 0.012 + crackIn * 0.01, edge);
-  stone.rgb = mix(stone.rgb, vec3(0.16, 0.15, 0.14), line * crackIn * 0.9);
-  float lip = (1.0 - smoothstep(0.012, 0.03, edge)) * crackIn * (1.0 - line);
-  stone.rgb += lip * 0.12;
-
-  // Underneath: the man. A breath of warmth at the break edge.
-  vec2 fUv = uv + uTilt * 0.006;
-  vec4 face = texture(uFace, fUv);
-  float gone = step(0.999, fall);
-  float glow = (1.0 - smoothstep(0.0, 0.03, edge)) * gone * (1.0 - clamp((t - order - 0.16) / 0.25, 0.0, 1.0));
-  vec3 under = face.rgb + vec3(0.95, 0.72, 0.38) * glow * 0.35;
-
-  // Marble dust: fine sparkle over the stone while it is breaking.
-  float dust = step(0.996, hash1(floor(uv * 900.0) + floor(uT * 12.0))) * crackIn * (1.0 - fall) * 0.5;
-
-  vec3 col = fall < 0.999 ? mix(stone.rgb + dust, under, smoothstep(0.75, 1.0, fall)) : under;
+  vec3 col = mix(face, stone.rgb, stone.a) + vec3(1.0, 0.85, 0.6) * spark * 0.8;
   outColor = vec4(col, 1.0);
 }`
 
@@ -124,14 +141,18 @@ function loadTexture(gl: WebGL2RenderingContext, img: HTMLImageElement) {
   return tex
 }
 
-/** Returns null when WebGL2 is unavailable; the caller keeps the plain images. */
+/** Returns null when WebGL2 is unavailable; the caller keeps the plain image. */
 export function createStatue(canvas: HTMLCanvasElement, statue: HTMLImageElement, face: HTMLImageElement): StatueGL | null {
   const gl = canvas.getContext('webgl2', { antialias: false, premultipliedAlpha: false })
   if (!gl) return null
 
   const prog = gl.createProgram()!
-  gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT))
-  gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG))
+  try {
+    gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT))
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG))
+  } catch {
+    return null
+  }
   gl.linkProgram(prog)
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null
   gl.useProgram(prog)
@@ -149,11 +170,14 @@ export function createStatue(canvas: HTMLCanvasElement, statue: HTMLImageElement
   const tFace = loadTexture(gl, face)
   gl.uniform1i(gl.getUniformLocation(prog, 'uStatue'), 0)
   gl.uniform1i(gl.getUniformLocation(prog, 'uFace'), 1)
-  const uP = gl.getUniformLocation(prog, 'uP')
-  const uT = gl.getUniformLocation(prog, 'uT')
-  const uTilt = gl.getUniformLocation(prog, 'uTilt')
+  const u = (n: string) => gl.getUniformLocation(prog, n)
+  const uP = u('uP'), uT = u('uT'), uTilt = u('uTilt'), uMouse = u('uMouse'), uHover = u('uHover')
 
-  const state = { p: 0, tx: 0, ty: 0, raf: 0, dirty: true, visible: true }
+  const state = {
+    p: 0, tx: 0, ty: 0, raf: 0, dirty: true,
+    // cursor: target and eased values
+    mx: 0.5, my: 0.5, ex: 0.5, ey: 0.5, inside: 0, hover: 0,
+  }
   const start = performance.now()
 
   const resize = () => {
@@ -168,20 +192,33 @@ export function createStatue(canvas: HTMLCanvasElement, statue: HTMLImageElement
     state.dirty = true
   }
 
-  // Only animate while breaking (the dust sparkles); otherwise draw on demand.
+  const onMove = (e: PointerEvent) => {
+    const r = canvas.getBoundingClientRect()
+    state.mx = (e.clientX - r.left) / r.width
+    state.my = (e.clientY - r.top) / r.height
+    state.inside = state.mx >= 0 && state.mx <= 1 && state.my >= 0 && state.my <= 1 ? 1 : 0
+  }
+  const onLeave = () => (state.inside = 0)
+  window.addEventListener('pointermove', onMove, { passive: true })
+  document.addEventListener('pointerleave', onLeave)
+
   const frame = () => {
     state.raf = requestAnimationFrame(frame)
-    const breaking = state.p > 0.01 && state.p < 0.99
-    if (!state.visible || (!state.dirty && !breaking)) return
+    // Ease the cursor so pieces glide rather than snap; pieces settle back slowly.
+    state.ex += (state.mx - state.ex) * 0.18
+    state.ey += (state.my - state.ey) * 0.18
+    state.hover += (state.inside - state.hover) * (state.inside ? 0.12 : 0.04)
+    const moving = state.hover > 0.002 || (state.p > 0.01 && state.p < 0.99)
+    if (!state.dirty && !moving) return
     state.dirty = false
     gl.uniform1f(uP, state.p)
     gl.uniform1f(uT, (performance.now() - start) / 1000)
     gl.uniform2f(uTilt, state.tx, state.ty)
+    gl.uniform2f(uMouse, state.ex, state.ey)
+    gl.uniform1f(uHover, state.hover * (1 - state.p))
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
-  const io = new IntersectionObserver(([e]) => (state.visible = e.isIntersecting))
-  io.observe(canvas)
   resize()
   frame()
 
@@ -198,7 +235,8 @@ export function createStatue(canvas: HTMLCanvasElement, statue: HTMLImageElement
     resize,
     destroy() {
       cancelAnimationFrame(state.raf)
-      io.disconnect()
+      window.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerleave', onLeave)
       gl.deleteTexture(tStatue)
       gl.deleteTexture(tFace)
       gl.deleteProgram(prog)

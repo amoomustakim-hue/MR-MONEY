@@ -69,13 +69,13 @@ export function Hero({ ready }: { ready: boolean }) {
       scrollTrigger: {
         trigger: root.current,
         start: 'top top',
-        end: desktop ? '+=240%' : '+=180%',
+        end: desktop ? '+=170%' : '+=140%',
         pin: true,
         scrub: 0.7,
         onUpdate: (self) => {
-          const p = range(self.progress, 0.06, 0.82)
+          const p = range(self.progress, 0.03, 0.74)
           gl.current?.setProgress(p)
-          if (label) label.textContent = p > 0.6 ? 'Flesh' : p > 0.02 ? 'Breaking' : 'Marble'
+          if (label) label.textContent = p > 0.6 ? 'Flesh' : p > 0.02 ? 'Crumbling' : 'Marble'
         },
       },
     })
@@ -146,7 +146,7 @@ export function Hero({ ready }: { ready: boolean }) {
           <br />
           Lagos, Nigeria.
         </p>
-        <p className="label hero__cue">Scroll to break the stone ↓</p>
+        <p className="label hero__cue">Touch the stone — scroll to break it ↓</p>
       </div>
 
       <p className="hero__after">

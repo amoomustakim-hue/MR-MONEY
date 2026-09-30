@@ -523,3 +523,144 @@
     opacity: 1;
   }
 }
+
+/* 03 — The orbit: the figure turns, the records spiral round him in 3D */
+.orbit {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: radial-gradient(80% 70% at 50% 55%, #2a55ec 0%, var(--blue) 50%, #11308f 100%);
+  perspective: 1500px;
+  perspective-origin: 50% 45%;
+}
+.orbit__back {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-weight: 900;
+  font-size: 34vw;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+.orbit__index {
+  position: absolute;
+  top: 12vh;
+  left: 18vw;
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.75);
+}
+.orbit__title {
+  position: absolute;
+  top: 16vh;
+  left: 18vw;
+  z-index: 5;
+  font-weight: 900;
+  font-size: clamp(34px, 4.4vw, 76px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+.orbit__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+.orbit__figure {
+  --fh: 84svh;
+  position: absolute;
+  max-width: none;
+  height: var(--fh);
+  width: calc(var(--fh) * 0.56);
+  left: calc(var(--fh) * -0.28);
+  top: calc(var(--fh) * -0.48);
+  transform: translateZ(0);
+  filter: drop-shadow(0 30px 40px rgba(3, 12, 60, 0.55));
+}
+.orbit__cover {
+  position: absolute;
+  max-width: none;
+  left: 0;
+  top: 0;
+  width: clamp(130px, 15vw, 250px);
+  margin: calc(clamp(130px, 15vw, 250px) / -2) 0 0 calc(clamp(130px, 15vw, 250px) / -2);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.orbit__cover img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  box-shadow: 0 40px 70px -25px rgba(3, 12, 60, 0.75);
+}
+.orbit__names {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 10vh;
+  z-index: 5;
+  list-style: none;
+  text-align: right;
+}
+.orbit__name {
+  display: none;
+}
+.orbit__name.is-on {
+  display: grid;
+  gap: 8px;
+  animation: eraIn 0.6s var(--ease);
+}
+@keyframes eraIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.orbit__era {
+  font-weight: 900;
+  font-size: clamp(30px, 4vw, 72px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  max-width: 12ch;
+  margin-left: auto;
+}
+.orbit__era--serif {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.orbit__hint {
+  position: absolute;
+  left: var(--gutter);
+  bottom: calc(var(--gutter) + 4px);
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 767px) {
+  .orbit__index {
+    top: 90px;
+    left: var(--gutter);
+  }
+  .orbit__title {
+    top: 112px;
+    left: var(--gutter);
+  }
+  .orbit__figure {
+    --fh: 66svh;
+  }
+  .orbit__cover {
+    width: 34vw;
+    margin: -17vw 0 0 -17vw;
+  }
+  .orbit__names {
+    bottom: 9vh;
+  }
+}

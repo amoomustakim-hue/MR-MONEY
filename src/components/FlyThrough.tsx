@@ -143,7 +143,6 @@ export function FlyThrough({ id, index, word, through, aim = [0.5, 0.5], font, c
           },
         },
       })
-      tl.fromTo('.fly__word-in', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.08, ease: 'power3.out' }, 0)
       tl.fromTo('.fly__film', { scale: 1.25 }, { scale: 1, duration: 0.5, ease: 'power2.out' }, 0.1)
       tl.fromTo('.fly__flash', { opacity: 0 }, { opacity: 0.55, duration: 0.03 }, 0.47).to('.fly__flash', { opacity: 0, duration: 0.08 }, 0.5)
       tl.fromTo('.fly__after', { opacity: 0 }, { opacity: 1, duration: 0.06 }, 0.55)
@@ -152,6 +151,16 @@ export function FlyThrough({ id, index, word, through, aim = [0.5, 0.5], font, c
         tl.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.06 }, at)
       })
       tl.set({}, {}, 1)
+
+      // The screen arrives solid — no footage — and the letters punch through
+      // it as the section settles, so the film only ever appears inside the word.
+      if (text.current) {
+        gsap.fromTo(
+          text.current,
+          { attr: { 'fill-opacity': 0 } },
+          { attr: { 'fill-opacity': 1 }, ease: 'power2.in', scrollTrigger: { trigger: root.current, start: 'top 55%', end: 'top top', scrub: true } },
+        )
+      }
       render(0)
       document.fonts.ready.then(() => {
         centre = measure()
@@ -181,7 +190,7 @@ export function FlyThrough({ id, index, word, through, aim = [0.5, 0.5], font, c
       <div className="fly__vignette" aria-hidden="true" />
 
       {!reduced && (
-        <svg className="fly__mask fly__word-in" viewBox={`0 0 ${box.w} ${box.h}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <svg className="fly__mask" viewBox={`0 0 ${box.w} ${box.h}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width={box.w} height={box.h}>
               <rect width={box.w} height={box.h} fill="#fff" />
