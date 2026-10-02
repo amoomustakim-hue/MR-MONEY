@@ -3,6 +3,7 @@ import { AUTHOR, CREDIT, ERAS, PHOTOS, img } from '../config/content'
 import { useScrollScene } from '../hooks/useScrollScene'
 import { gsap } from '../utils/gsap'
 import { FlyThrough } from './FlyThrough'
+import { Sleeve } from './Sleeve'
 import { pad } from '../utils/math'
 
 /** Lines that rise out of their own clipped box when scrolled to. */
@@ -144,7 +145,7 @@ export function Discography() {
             onMouseEnter={() => setActive(i)}
             onFocus={() => setActive(i)}
           >
-            <img src={e.cover} alt={`${e.title} cover`} loading="lazy" />
+            <Sleeve era={e} index={i} />
             <span className="label">
               {pad(i + 1)} — {e.year}
             </span>
