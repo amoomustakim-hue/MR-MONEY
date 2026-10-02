@@ -4,6 +4,7 @@ import { useReducedMotion } from '../hooks/useMediaQuery'
 import { useScrollScene } from '../hooks/useScrollScene'
 import { gsap } from '../utils/gsap'
 import { pad } from '../utils/math'
+import { Sleeve } from './Sleeve'
 
 const base = import.meta.env.BASE_URL
 /** Cut-out frames of the walk, 20 fps, re-centred so he walks on the spot. */
@@ -162,9 +163,9 @@ export function Spiral() {
 
       <div className="orbit__stage">
         <canvas ref={canvas} className="orbit__figure" width={900} height={1200} role="img" aria-label="Asake walking, cut out from stage footage" />
-        {ERAS.map((e) => (
+        {ERAS.map((e, i) => (
           <figure className="orbit__cover" key={e.id}>
-            <img src={e.cover} alt={`${e.title} cover`} loading="lazy" />
+            <Sleeve era={e} index={i} />
           </figure>
         ))}
       </div>

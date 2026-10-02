@@ -664,3 +664,107 @@
     bottom: 9vh;
   }
 }
+
+/* ---------- Sleeve: the cover turns into its back sleeve on hover ---------- */
+.sleeve {
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  transition: transform 0.6s var(--ease);
+}
+.sleeve img {
+  display: block;
+  transition: filter 0.6s var(--ease);
+}
+.sleeve__back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4cqw;
+  padding: 7cqw;
+  color: var(--era-fg);
+  background: color-mix(in srgb, var(--era-bg) 86%, transparent);
+  backdrop-filter: blur(6px);
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.7s var(--ease);
+  text-align: left;
+  pointer-events: none;
+}
+.sleeve__head {
+  display: grid;
+  gap: 1.5cqw;
+  padding-bottom: 3cqw;
+  border-bottom: 1px solid color-mix(in srgb, var(--era-fg) 30%, transparent);
+}
+.sleeve__meta,
+.sleeve__no {
+  font-family: var(--mono);
+  font-size: 3.6cqw;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.sleeve__title {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: 7.4cqw;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+.sleeve__title--serif {
+  font-family: var(--serif);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.sleeve__tracks {
+  display: grid;
+  gap: 1.6cqw 5cqw;
+  align-content: start;
+  font-size: 4.4cqw;
+  line-height: 1.15;
+}
+.sleeve__tracks--two {
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, auto);
+  font-size: 3.9cqw;
+}
+.sleeve__track {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(60%);
+  transition:
+    opacity 0.4s,
+    transform 0.5s var(--ease);
+}
+
+@media (hover: hover) {
+  .disco__cover:hover .sleeve__back,
+  .disco__cover:focus-visible .sleeve__back,
+  .orbit__cover:hover .sleeve__back {
+    clip-path: inset(0 0 0 0);
+  }
+  .disco__cover:hover .sleeve__track,
+  .disco__cover:focus-visible .sleeve__track,
+  .orbit__cover:hover .sleeve__track {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.18s + var(--i, 0) * 0.03s);
+  }
+  .disco__cover:hover .sleeve img,
+  .orbit__cover:hover .sleeve img {
+    filter: blur(2px) saturate(0.7);
+  }
+  /* The orbiting covers are small: lift the one under the cursor so it reads. */
+  .orbit__cover:hover .sleeve {
+    transform: scale(1.4);
+  }
+  /* While a sleeve is open, the stage sits above the title so nothing covers it. */
+  .orbit__stage:has(.orbit__cover:hover) {
+    z-index: 6;
+  }
+}
